@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TruckLog Manager</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: #f2f4f7; color: #17202a; }
+    header { background: #173f5f; color: white; padding: 25px 20px; border-radius: 0 0 20px 20px; }
+    header h1 { margin: 0 0 8px; font-size: 26px; }
+    header p { margin: 0; opacity: 0.85; }
+    main { padding: 20px; max-width: 600px; margin: auto; }
+    .card { background: white; padding: 20px; border-radius: 16px; margin-bottom: 16px; box-shadow: 0 3px 12px rgba(0,0,0,0.06); }
+    .card h2 { margin-top: 0; font-size: 19px; }
+    label { display: block; margin: 12px 0 6px; font-weight: bold; }
+    input, button { width: 100%; padding: 13px; border-radius: 10px; font-size: 16px; }
+    input { border: 1px solid #ccd3da; }
+    button { border: none; background: #1f8a4c; color: white; font-weight: bold; margin-top: 16px; }
+    .balance { font-size: 30px; font-weight: bold; color: #1f8a4c; }
+    .entry { border-top: 1px solid #e0e0e0; padding: 12px 0; }
+    .empty { color: #667085; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🚛 TruckLog Manager</h1>
+    <p>My personal trucking and salary management app</p>
+  </header>
+  <main>
+    <div class="card">
+      <h2>💰 Diesel Bonus</h2>
+      <div class="balance" id="totalBonus">R 0.00</div>
+      <p>Track your diesel bonus earnings.</p>
+    </div>
+    <div class="card">
+      <h2>⛽ Add Diesel Record</h2>
+      <label for="date">Date</label>
+      <input type="date" id="date">
+      <label for="litres">Diesel Litres</label>
+      <input type="number" id="litres" placeholder="Enter litres" min="0" step="0.01">
+      <label for="bonus">Bonus Amount (R)</label>
+      <input type="number" id="bonus" placeholder="Enter bonus" min="0" step="0.01">
+      <button onclick="addRecord()">Save Diesel Record</button>
+    </div>
+    <div class="card">
+      <h2>📋 My Diesel Records</h2>
+      <div id="records"><p class="empty">No records yet.</p></div>
+    </div>
+  </main>
+  <script>
+    let records = JSON.parse(localStorage.getItem("truckRecords") || "[]");
+    function displayRecords() {
+      const container = document.getElementById("records");
+      const totalBonus = document.getElementById("totalBonus");
+      let total = 0;
+      records.forEach(record => { total += record.bonus; });
+      totalBonus.textContent = "R " + total.toFixed(2);
+      if (records.length === 0) { container.innerHTML = '<p class="empty">No records yet.</p>'; return; }
+      container.innerHTML = records.map(record => `<div class="entry"><strong>${record.date}</strong><br>Diesel: ${record.litres} L<br>Bonus: R ${record.bonus.toFixed(2)}</div>`).join("");
+    }
+    function addRecord() {
+      const date = document.getElementById("date").value;
+      const litres = Number(document.getElementById("litres").value);
+      const bonusInput = document.getElementById("bonus");
+      const bonus = Number(bonusInput.value);
+      if (!date || litres <= 0 || bonus < 0 || bonusInput.value === "") { alert("Please enter valid record details."); return; }
+      records.push({ date: date, litres: litres, bonus: bonus });
+      localStorage.setItem("truckRecords", JSON.stringify(records));
+      document.getElementById("litres").value = "";
+      bonusInput.value = ""; 
+      displayRecords();
+      alert("Diesel record saved!");
+    }
+    displayRecords();
+  </script>
+</body>
+</html>
