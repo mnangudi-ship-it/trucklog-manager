@@ -1,23 +1,120 @@
-🚛 TruckLog Manager
-Africa trip sheets • GPS • fleet • salary • fuel
-Saved Trips
-0
-Total Kilometers
-0
-Fuel Cost
-N$ 0
-Estimated Earnings
-N$ 0
-🏠 Home
-📋 Add Trip
-⛽ Fuel
-☰ More
-Dashboard
-Africa routes
-Create a trip for any African country, city, depot or border crossing.
-No trips saved yet.
-📍 GPS
-GPS has not been started.
-Get Current Location
-GPS map preview: use “Get Current Location” to read your phone's location. A full interactive route map can be added with a mapping service.
-TruckLog Manager • Data is stored locally in this browser on this device.
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0f17">
+<title>TruckLog Manager Africa</title>
+<style>
+:root{--bg:#090d14;--panel:#121a26;--panel2:#1a2534;--text:#f4f7fb;--muted:#9ba9bc;--green:#36e39a;--blue:#61a8ff;--orange:#ffb454;--pink:#ff6fae;--red:#ff6b6b;--border:#2b394c}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(135deg,#090d14,#111827);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}header{padding:22px 18px;background:linear-gradient(120deg,#12243a,#162b28);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:5}header h1{margin:0;font-size:25px}header p{margin:7px 0 0;color:var(--muted);font-size:13px}.wrap{max-width:760px;margin:auto;padding:14px}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.card{background:rgba(18,26,38,.96);border:1px solid var(--border);border-radius:16px;padding:15px;margin-bottom:12px;box-shadow:0 8px 22px #0003}.stat{background:var(--panel2);border-radius:12px;padding:12px}.stat small{color:var(--muted);display:block}.stat strong{display:block;font-size:23px;margin-top:5px}.nav{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:12px 0}.nav button{font-size:11px;padding:10px 4px}.nav button.active{background:var(--green);color:#07120e}.tab{display:none}.tab.active{display:block}h2,h3{margin-top:0}label{display:block;color:var(--muted);font-size:12px;margin:10px 0 5px}input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid var(--border);background:#0c131e;color:var(--text);font-size:14px}textarea{min-height:75px;resize:vertical}button{border:0;border-radius:10px;padding:12px 14px;background:var(--blue);color:#06101e;font-weight:bold;cursor:pointer}button.secondary{background:#26364b;color:var(--text)}button.green{background:var(--green)}button.orange{background:var(--orange)}button.danger{background:var(--red)}.row{display:flex;gap:8px;align-items:center;justify-content:space-between;flex-wrap:wrap}.muted{color:var(--muted)}.pill{display:inline-block;padding:5px 8px;border-radius:999px;background:#24364b;color:var(--blue);font-size:11px}.trip{border-left:4px solid var(--green);padding-left:12px;margin:12px 0}.trip h3{margin-bottom:5px}.small{font-size:12px}.hidden{display:none}.success{color:var(--green)}.warning{color:var(--orange)}#map{height:220px;border:1px dashed var(--border);border-radius:12px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:20px}.footer{color:var(--muted);font-size:11px;text-align:center;padding:20px}@media(min-width:650px){.nav button{font-size:13px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><h1>🚛 TruckLog Manager</h1><p>Africa trip sheets • GPS • fleet • salary • fuel</p></div></header>
+<div class="wrap">
+<div class="grid">
+<div class="stat"><small>Saved Trips</small><strong id="tripCount">0</strong></div>
+<div class="stat"><small>Total Kilometers</small><strong id="kmTotal">0</strong></div>
+<div class="stat"><small>Fuel Cost</small><strong id="fuelTotal">N$ 0</strong></div>
+<div class="stat"><small>Estimated Earnings</small><strong id="earnTotal">N$ 0</strong></div>
+</div>
+<div class="nav">
+<button class="active" data-tab="dashboard">🏠 Home</button>
+<button data-tab="trip">📋 Add Trip</button>
+<button data-tab="fuel">⛽ Fuel</button>
+<button data-tab="more">☰ More</button>
+</div>
+
+<section id="dashboard" class="tab active">
+<div class="card"><div class="row"><h2>Dashboard</h2><span class="pill">Africa routes</span></div><p class="muted">Create a trip for any African country, city, depot or border crossing.</p><div id="latestTrips"><p class="muted">No trips saved yet.</p></div></div>
+<div class="card"><h3>📍 GPS</h3><p id="gpsStatus" class="muted">GPS has not been started.</p><button class="green" onclick="getGPS()">Get Current Location</button></div>
+</section>
+
+<section id="trip" class="tab">
+<div class="card"><h2>📋 Add Trip Sheet</h2>
+<form id="tripForm">
+<label>Fleet Number</label><input id="fleet" placeholder="e.g. FLEET-025" required>
+<label>Truck Registration</label><input id="registration" placeholder="e.g. N 12345 W">
+<label>Driver Name</label><input id="driver" placeholder="Driver name">
+<label>Start Location</label><input id="start" placeholder="e.g. Windhoek, Namibia" required>
+<label>Destination</label><input id="destination" placeholder="e.g. Johannesburg, South Africa" required>
+<label>Return Location (optional)</label><input id="returnLocation" placeholder="e.g. Windhoek, Namibia">
+<label>Start Date</label><input id="startDate" type="date" required>
+<label>End Date</label><input id="endDate" type="date">
+<label>Start Odometer (km)</label><input id="odoStart" type="number" min="0" step="0.1" placeholder="0">
+<label>End Odometer (km)</label><input id="odoEnd" type="number" min="0" step="0.1" placeholder="0">
+<label>GPS/Recorded Distance (km, optional)</label><input id="gpsKm" type="number" min="0" step="0.1" placeholder="Use odometer if blank">
+<label>Payment Method</label><select id="payment"><option value="km">Per kilometer</option><option value="fixed">Fixed salary / trip amount</option><option value="load">Per load</option></select>
+<label>Rate or Amount (N$)</label><input id="rate" type="number" min="0" step="0.01" placeholder="Enter amount" required>
+<label>Number of Loads</label><input id="loads" type="number" min="1" value="1">
+<label>Trip Notes</label><textarea id="notes" placeholder="Cargo, borders, delivery notes, delays..."></textarea>
+<div class="row"><button type="submit" class="green">Save Trip</button><button type="button" class="secondary" onclick="resetTripForm()">Clear</button></div>
+</form></div>
+</section>
+
+<section id="fuel" class="tab">
+<div class="card"><h2>⛽ Fuel Management</h2>
+<form id="fuelForm">
+<label>Fleet Number</label><input id="fuelFleet" placeholder="e.g. FLEET-025" required>
+<label>Date</label><input id="fuelDate" type="date" required>
+<label>Location</label><input id="fuelLocation" placeholder="e.g. Gaborone">
+<label>Liters</label><input id="liters" type="number" min="0" step="0.01" required>
+<label>Price per Liter (N$)</label><input id="fuelPrice" type="number" min="0" step="0.01" required>
+<label>Odometer (km)</label><input id="fuelOdo" type="number" min="0" step="0.1">
+<button class="orange" type="submit">Save Fuel Entry</button>
+</form></div>
+<div class="card"><h3>Fuel Entries</h3><div id="fuelList"><p class="muted">No fuel entries yet.</p></div></div>
+</section>
+
+<section id="more" class="tab">
+<div class="card"><h2>☰ More Options</h2>
+<button class="secondary" onclick="showTab('history')">📚 Trip History</button>
+<button class="secondary" onclick="showTab('settings')">⚙️ Settings</button>
+<button class="secondary" onclick="exportData()">⬇️ Export Data</button>
+<button class="danger" onclick="clearAllData()">Delete All Local Data</button></div>
+</section>
+
+<section id="history" class="tab"><div class="card"><h2>📚 Trip History</h2><div id="historyList"></div></div></section>
+<section id="settings" class="tab"><div class="card"><h2>⚙️ Settings</h2>
+<label>Default Driver Name</label><input id="setDriver" placeholder="Your name">
+<label>Default Fleet Number</label><input id="setFleet" placeholder="Fleet number">
+<label>Default Registration</label><input id="setRegistration" placeholder="Registration">
+<label>Currency</label><select id="setCurrency"><option>NAD</option><option>ZAR</option><option>USD</option><option>EUR</option></select>
+<button class="green" onclick="saveSettings()">Save Settings</button>
+<p id="settingsMessage" class="success"></p></div></section>
+
+<div id="map" class="card">GPS map preview: use “Get Current Location” to read your phone's location. A full interactive route map can be added with a mapping service.</div>
+<div class="footer">TruckLog Manager • Data is stored locally in this browser on this device.</div>
+</div>
+
+<script>
+const keyTrips='trucklog_trips_v2',keyFuel='trucklog_fuel_v2',keySettings='trucklog_settings_v2';
+let trips=JSON.parse(localStorage.getItem(keyTrips)||'[]');
+let fuel=JSON.parse(localStorage.getItem(keyFuel)||'[]');
+let settings=JSON.parse(localStorage.getItem(keySettings)||'{}');
+const $=id=>document.getElementById(id);
+const money=n=>(settings.currency||'NAD')+' '+Number(n||0).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+function save(){localStorage.setItem(keyTrips,JSON.stringify(trips));localStorage.setItem(keyFuel,JSON.stringify(fuel));render();}
+function showTab(id){document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));if(id==='history')renderHistory();if(id==='settings')loadSettings();}
+document.querySelectorAll('.nav button').forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+function distance(t){let od=(Number(t.odoEnd)||0)-(Number(t.odoStart)||0);return Number(t.gpsKm)>0?Number(t.gpsKm):Math.max(0,od)}
+function earnings(t){if(t.payment==='km')return distance(t)*Number(t.rate||0);if(t.payment==='load')return Number(t.loads||0)*Number(t.rate||0);return Number(t.rate||0)}
+function render(){let km=trips.reduce((s,t)=>s+distance(t),0),fc=fuel.reduce((s,f)=>s+Number(f.liters)*Number(f.price),0),earn=trips.reduce((s,t)=>s+earnings(t),0);$('tripCount').textContent=trips.length;$('kmTotal').textContent=km.toLocaleString()+' km';$('fuelTotal').textContent=money(fc);$('earnTotal').textContent=money(earn);renderLatest();renderFuel();renderHistory();}
+function renderLatest(){let box=$('latestTrips');if(!trips.length){box.innerHTML='<p class="muted">No trips saved yet.</p>';return}box.innerHTML=trips.slice(-3).reverse().map(t=>`<div class="trip"><h3>${escapeHTML(t.start)} → ${escapeHTML(t.destination)}</h3><div class="small muted">Fleet: ${escapeHTML(t.fleet)} • ${escapeHTML(t.startDate||'')}</div><div class="small">${distance(t).toLocaleString()} km • ${money(earnings(t))}</div></div>`).join('');}
+function renderHistory(){let box=$('historyList');if(!box)return;if(!trips.length){box.innerHTML='<p class="muted">No trips saved.</p>';return}box.innerHTML=trips.slice().reverse().map((t,i)=>`<div class="trip"><h3>${escapeHTML(t.start)} → ${escapeHTML(t.destination)}</h3><p class="small muted">Fleet ${escapeHTML(t.fleet)} • Registration ${escapeHTML(t.registration||'-')}</p><p class="small">${distance(t).toLocaleString()} km • ${escapeHTML(t.payment)} • ${money(earnings(t))}</p><p class="small">${escapeHTML(t.notes||'')}</p><button class="danger small" onclick="deleteTrip(${trips.length-1-i})">Delete</button></div>`).join('');}
+function renderFuel(){let box=$('fuelList');if(!fuel.length){box.innerHTML='<p class="muted">No fuel entries yet.</p>';return}box.innerHTML=fuel.slice().reverse().map((f,i)=>`<div class="trip"><h3>${escapeHTML(f.location||'Fuel entry')}</h3><p class="small muted">Fleet ${escapeHTML(f.fleet)} • ${escapeHTML(f.date)}</p><p class="small">${f.liters} L × ${money(f.price)} = <b>${money(f.liters*f.price)}</b></p></div>`).join('');}
+function deleteTrip(index){if(confirm('Delete this trip?')){trips.splice(index,1);save()}}
+function resetTripForm(){$('tripForm').reset();$('loads').value=1}
+$('tripForm').onsubmit=e=>{e.preventDefault();let t={fleet:$('fleet').value,registration:$('registration').value,driver:$('driver').value,start:$('start').value,destination:$('destination').value,returnLocation:$('returnLocation').value,startDate:$('startDate').value,endDate:$('endDate').value,odoStart:$('odoStart').value,odoEnd:$('odoEnd').value,gpsKm:$('gpsKm').value,payment:$('payment').value,rate:$('rate').value,loads:$('loads').value,notes:$('notes').value};trips.push(t);save();alert('Trip saved successfully');resetTripForm();showTab('dashboard');};
+$('fuelForm').onsubmit=e=>{e.preventDefault();fuel.push({fleet:$('fuelFleet').value,date:$('fuelDate').value,location:$('fuelLocation').value,liters:$('liters').value,price:$('fuelPrice').value,odo:$('fuelOdo').value});save();alert('Fuel entry saved');$('fuelForm').reset();};
+function getGPS(){if(!navigator.geolocation){$('gpsStatus').textContent='GPS is not supported by this browser.';return}$('gpsStatus').textContent='Requesting location permission...';navigator.geolocation.getCurrentPosition(p=>{$('gpsStatus').innerHTML='<span class="success">Location received:</span> '+p.coords.latitude.toFixed(5)+', '+p.coords.longitude.toFixed(5)+'<br>Accuracy: '+Math.round(p.coords.accuracy)+' m';$('map').innerHTML='📍 Current GPS coordinates<br>'+p.coords.latitude.toFixed(5)+', '+p.coords.longitude.toFixed(5);},err=>$('gpsStatus').textContent='Could not get location: '+err.message,{enableHighAccuracy:true,timeout:10000});}
+function loadSettings(){$('setDriver').value=settings.driver||'';$('setFleet').value=settings.fleet||'';$('setRegistration').value=settings.registration||'';$('setCurrency').value=settings.currency||'NAD';}
+function saveSettings(){settings={driver:$('setDriver').value,fleet:$('setFleet').value,registration:$('setRegistration').value,currency:$('setCurrency').value};localStorage.setItem(keySettings,JSON.stringify(settings));$('settingsMessage').textContent='Settings saved.';render();}
+function exportData(){let data={trips,fuel,settings,exportedAt:new Date().toISOString()};let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='trucklog-backup.json';a.click();URL.revokeObjectURL(url);}
+function clearAllData(){if(confirm('Delete all trips, fuel entries and settings from this browser?')){trips=[];fuel=[];settings={};localStorage.removeItem(keyTrips);localStorage.removeItem(keyFuel);localStorage.removeItem(keySettings);render();}}
+function escapeHTML(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+loadSettings();render();
+</script>
+</body>
+</html>
